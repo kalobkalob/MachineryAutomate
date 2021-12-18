@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Machinery automate
 // @namespace    http://tampermonkey.net/
-// @version      1
+// @version      1.0.1
 // @description  Script for automating the Machinery idle game.
 // @author       kaws#9779
 // @match        https://louigiverona.com/machinery/index_dev.html
@@ -25,10 +25,10 @@ class Page {
 class Machine {
     constructor(){
         this.btns={
-            batteryUp: document.getElementById("battery_percent_up"),
-            batteryDown: document.getElementById("battery_percent_down"),
-            throughput: document.getElementById("charge_throughput_upgrade"),
-            limit: document.getElementById("charge_limit_upgrade")
+            batteryUp: window.battery_percent_up[0],
+            batteryDown: window.battery_percent_down[0],
+            throughput: window.charge_throughput_upgrade[0],
+            limit: window.charge_limit_upgrade[0]
         };
         this.data={
             get chargePercent(){return window.battery_charge_percentage},
@@ -43,8 +43,8 @@ class Machine {
 }
 class System {
     constructor(){
-        this.moneyLimitBtn=document.getElementById("money_limit_upgrade");
-        this.upgradeBoxes = [...document.getElementById("bonusboxblock_1").parentNode.children];
+        this.moneyLimitBtn=window.money_limit_upgrade[0];
+        this.upgradeBoxes = [...window.bonusbox];
     }
     update(){
         this.money = window.money;
@@ -56,21 +56,31 @@ class System {
 class Generator {
     constructor(num){
         this.num=num;
+        /*this.funcs={
+            supply:()=>{
+                window[this.num+"_supply"]=window[this.num+"_price"];
+                window[this.num+"_supply_label"].text(window.numT(window[this.num+"_supply"]));
+                window[this.num[0].toUpperCase() + this.num.slice(1)]();
+            }
+        }*/
         this.btns={
-            supply:document.getElementById("button_"+num),
-            limit:document.getElementById(num+"_upgrade_supply_limit"),
-            power:document.getElementById(num+"_upgrade_effectiveness"),
-            generation:document.getElementById(num+"_upgrade_generation")
+            supply:window["button_"+num][0],
+            limit:window[num+"_upgrade_supply_limit"][0],
+            power:window[num+"_upgrade_effectiveness"][0],
+            generation:window[num+"_upgrade_generation"][0]
         };
+        this.btns.num=num;
 
         this.data = {
             get supply(){return window[this.num+"_supply"]},
             get supplyLimit(){return window[this.num+"_price"]}
         };
         this.data.num=num;
+
     }
     update(){
         if(this.data.supplyLimit>0&&this.data.supply==0)this.btns.supply.click();
+        //if(this.data.supplyLimit>0&&this.data.supply==0)this.funcs.supply();
     }
 }
 var page = new Page();
