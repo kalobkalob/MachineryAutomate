@@ -7,7 +7,7 @@
 // @match        https://louigiverona.com/machinery/index_dev.html
 // @icon         https://www.google.com/s2/favicons?domain=louigiverona.com
 // @grant        none
-// @downloadURL  https://github.com/kalobkalob/MachineryAutomate/raw/main/MachinerAutomate.js
+// @downloadURL  https://github.com/kalobkalob/MachineryAutomate/raw/main/MachinerAutomate.user.js
 // ==/UserScript==
 
 class Page {
