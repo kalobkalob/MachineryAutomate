@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Machinery automate
 // @namespace    http://tampermonkey.net/
-// @version      1.0.1
+// @version      1.0.2
 // @description  Script for automating the Machinery idle game.
 // @author       kaws#9779
 // @match        https://louigiverona.com/machinery/index_dev.html
@@ -15,11 +15,12 @@ class Page {
         this.generators = [new Generator("one"),new Generator("two"),new Generator("three"),new Generator("four")];
         this.system = new System();
         this.machine = new Machine();
-        setInterval(()=>this.update(),100);
+        setInterval(()=>this.update(),480);
     }
     update(){
         this.system.update();
         for(let i=0, len=this.generators.length; i<len; i++) this.generators[i].update();
+        this.machine.update();
     }
 }
 class Machine {
@@ -43,12 +44,14 @@ class Machine {
 }
 class System {
     constructor(){
-        this.moneyLimitBtn=window.money_limit_upgrade[0];
+        this.moneyLimitBtn = window.money_limit_upgrade[0];
         this.upgradeBoxes = [...window.bonusbox];
     }
+    get money() {return window.money}
+    get moneyLimit() {return window.money_limit}
     update(){
-        this.money = window.money;
-        this.moneyLimit = window.money;
+        //this.money = window.money;
+        //this.moneyLimit = window.money;
         if(this.money == this.moneyLimit) this.moneyLimitBtn.click();
         if(!this.upgradeBoxes[0].disabled) this.upgradeBoxes[0].click();
     }
