@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Machinery automate
 // @namespace    http://tampermonkey.net/
-// @version      1.0.2
+// @version      1.0.3
 // @description  Script for automating the Machinery idle game.
 // @author       kaws#9779
 // @match        https://louigiverona.com/machinery/index_dev.html
@@ -14,16 +14,60 @@ class Page {
     constructor(){
         this.generators = [new Generator("one"),new Generator("two"),new Generator("three"),new Generator("four")];
         this.system = new System();
-        this.machine = new Machine();
+        this.battery = new Battery();
+        this.magnetron = new Magnetron();
+        this.engineer = new Engineer();
         setInterval(()=>this.update(),480);
     }
     update(){
         this.system.update();
         for(let i=0, len=this.generators.length; i<len; i++) this.generators[i].update();
-        this.machine.update();
+        this.battery.update();
+        this.magnetron.update();
+        this.engineer.update();
     }
 }
-class Machine {
+class Engineer {
+    constructor(){
+        this.left = {
+            lever: window.auxiliary_lever1[0],
+            get effectiveness(){return window.auxiliary_effectiveness1},
+            set effectiveness(value){ window.auxiliary_effectiveness1=value}
+        }
+        this.right = {
+            lever: window.auxiliary_lever2[0],
+            get effectiveness(){return window.auxiliary_effectiveness2},
+            set effectiveness(value){ window.auxiliary_effectiveness2=value}
+        }
+        this.auxLabel = window.auxiliary_effectiveness_label[0];
+    }
+    setSide(target){
+        if(target.lever.value!=0) target.lever.value=0;
+        if(target.effectiveness!=5) target.effectiveness=5;
+    }
+    update(){
+        this.setSide(this.left);
+        this.setSide(this.right);
+        this.auxLabel.innerText="[+"+(this.left.effectiveness+this.right.effectiveness)+"%]";
+    }
+}
+class Magnetron {
+    constructor(){
+        this.btns = {
+            main:window.magnetron_button[0],
+            multiplier:window.magnetron_multiplier_upgrade[0],
+            duration:window.magnetron_duration_upgrade[0]
+        };
+        this.data = {
+            get multiplier(){return window.magnetron_multiplier},
+            get duration(){return window.magnetron_duration}
+        };
+    }
+    update(){
+        if(!this.btns.main.disabled)this.btns.main.click;
+    }
+}
+class Battery {
     constructor(){
         this.btns={
             batteryUp: window.battery_percent_up[0],
