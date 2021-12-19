@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Machinery automate
 // @namespace    http://tampermonkey.net/
-// @version      1.0.3
+// @version      1.0.4
 // @description  Script for automating the Machinery idle game.
 // @author       kaws#9779
 // @match        https://louigiverona.com/machinery/index_dev.html
@@ -10,6 +10,8 @@
 // @downloadURL  https://github.com/kalobkalob/MachineryAutomate/raw/main/MachinerAutomate.user.js
 // ==/UserScript==
 
+// Use predictive method for increasing methods.
+var CHEAT_MODE = false;
 class Page {
     constructor(){
         this.generators = [new Generator("one"),new Generator("two"),new Generator("three"),new Generator("four")];
@@ -17,7 +19,9 @@ class Page {
         this.battery = new Battery();
         this.magnetron = new Magnetron();
         this.engineer = new Engineer();
-        setInterval(()=>this.update(),480);
+        let interval_base = 15;
+        let interval_mult = 8;//32 to equal 480
+        setInterval(()=>this.update(),interval_base*interval_mult);
     }
     update(){
         this.system.update();
@@ -63,8 +67,23 @@ class Magnetron {
             get duration(){return window.magnetron_duration}
         };
     }
+    get state(){
+        return this.btns.main.className.split('_')[2];
+    }
+    runMag(){
+        window.magnetron_state=2;
+        window.magnetron_buttonEnable();
+    }
     update(){
-        if(!this.btns.main.disabled)this.btns.main.click;
+        switch(this.state){
+            case 'disarmed':
+                if(CHEAT_MODE)this.runMag();
+                break;
+            case 'armed':
+                this.btns.main.click();
+                break;
+            case 'timer':
+        }
     }
 }
 class Battery {
