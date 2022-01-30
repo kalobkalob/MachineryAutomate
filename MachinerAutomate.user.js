@@ -1,16 +1,22 @@
 // ==UserScript==
 // @name         Machinery automate
 // @namespace    http://tampermonkey.net/
-// @version      1.0.4
+// @version      1.0.5
 // @description  Script for automating the Machinery idle game.
 // @author       kaws#9779
-// @match        https://louigiverona.com/machinery/index_dev.html
-// @icon         https://www.google.com/s2/favicons?domain=louigiverona.com
+// @match        https://louigiverona.com/machinery/*
+// @icon         https://louigiverona.com/favicon.ico
 // @grant        none
 // @downloadURL  https://github.com/kalobkalob/MachineryAutomate/raw/main/MachinerAutomate.user.js
 // ==/UserScript==
 
-// Use predictive method for increasing methods.
+/* TODO
+* BUGS:
+* magnetron issue before unlock. Can break save. Check for others.
+* Condensed update system to single loop through modifiable array.
+
+* Possible upgrades: Use predictive method for increasing methods.
+*/
 var CHEAT_MODE = false;
 class Page {
     constructor(){
@@ -19,16 +25,20 @@ class Page {
         this.battery = new Battery();
         this.magnetron = new Magnetron();
         this.engineer = new Engineer();
+        this.toUpdate = [this.system];
+        this.toAdd = [this.battery, this.magnetron, this.engineer];
+        for(let i=0, len=this.generators.length; i<len; i++) this.toUpdate.push(this.generators[i]);
         let interval_base = 15;
         let interval_mult = 8;//32 to equal 480
         setInterval(()=>this.update(),interval_base*interval_mult);
     }
     update(){
-        this.system.update();
-        for(let i=0, len=this.generators.length; i<len; i++) this.generators[i].update();
-        this.battery.update();
-        this.magnetron.update();
-        this.engineer.update();
+        if(this.toAdd.length>0)this.addEnable();
+        //this.system.update();
+        for(let i=0, len=this.toUpdate.length; i<len; i++) this.toUpdate[i].update();
+    }
+    addEnable(){
+        if(this.toAdd[0].isEnabled) this.toUpdate.push(this.toAdd.shift());
     }
 }
 class Engineer {
@@ -48,6 +58,9 @@ class Engineer {
     setSide(target){
         if(target.lever.value!=0) target.lever.value=0;
         if(target.effectiveness!=5) target.effectiveness=5;
+    }
+    get isEnabled() {
+        return false;
     }
     update(){
         this.setSide(this.left);
@@ -74,15 +87,21 @@ class Magnetron {
         window.magnetron_state=2;
         window.magnetron_buttonEnable();
     }
+    get isEnabled() {
+        return false;
+    }
     update(){
-        switch(this.state){
-            case 'disarmed':
-                if(CHEAT_MODE)this.runMag();
-                break;
-            case 'armed':
-                this.btns.main.click();
-                break;
-            case 'timer':
+        //console.log(this.state);
+        if(window.magnetron_duration){
+            switch(this.state){
+                case 'disarmed':
+                    if(CHEAT_MODE)this.runMag();
+                    break;
+                case 'armed':
+                    this.btns.main.click();
+                    break;
+                case 'timer':
+            }
         }
     }
 }
@@ -100,6 +119,10 @@ class Battery {
             get indicatorLimit(){return window.charge},
             get indicatorCurrent(){return window.charge_limit}
         };
+    }
+    get isEnabled() {
+        //battery_charge_percentage!=0, battery_state!=0, window.battery_lock_block[0].style.display=='none'
+        return window.battery_lock_block[0].style.display=='none';
     }
     update(){
         if(this.data.indicatorCurrent==this.data.indicatorLimit)this.btns.limit.click();
