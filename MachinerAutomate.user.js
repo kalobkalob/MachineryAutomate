@@ -1,18 +1,17 @@
 // ==UserScript==
 // @name         Machinery automate
 // @namespace    http://tampermonkey.net/
-// @version      1.0.6
+// @version      1.0.7
 // @description  Script for automating the Machinery idle game.
 // @author       kaws#9779
 // @match        https://louigiverona.com/machinery/*
 // @icon         https://louigiverona.com/favicon.ico
 // @grant        none
-// @downloadURL  https://github.com/kalobkalob/MachineryAutomate/blob/main/MachinerAutomate.user.js
+// @downloadURL  https://github.com/kalobkalob/MachineryAutomate/raw/main/MachinerAutomate.user.js
 // ==/UserScript==
 
 /* TODO
 * BUGS:
-
 * Possible upgrades: Use predictive method for increasing methods.
 */
 var CHEAT_MODE = false;
@@ -40,6 +39,7 @@ class Page {
     }
 }
 class Engineer {
+    // window.engden_title[0].style.display!='none', window.engden_state!=0
     constructor(){
         this.left = {
             lever: window.auxiliary_lever1[0],
@@ -58,14 +58,15 @@ class Engineer {
         if(target.effectiveness!=5) target.effectiveness=5;
     }
     get isEnabled() {
-        return false;
+        return window.engden_state!=0
     }
     update(){
-        this.setSide(this.left);
-        this.setSide(this.right);
-        this.auxLabel.innerText="[+"+(this.left.effectiveness+this.right.effectiveness)+"%]";
+        //this.setSide(this.left);
+        //this.setSide(this.right);
+        //this.auxLabel.innerText="[+"+(this.left.effectiveness+this.right.effectiveness)+"%]";
     }
 }
+// window.warp
 class Magnetron {
     constructor(){
         this.btns = {
@@ -85,8 +86,9 @@ class Magnetron {
         window.magnetron_state=2;
         window.magnetron_buttonEnable();
     }
+    // window.magnetron_block[0].style.display!='none', window.magnetron_duration!=undefined,
     get isEnabled() {
-        return false;
+        return window.magnetron_state!=0;
     }
     update(){
         //console.log(this.state);
@@ -120,24 +122,25 @@ class Battery {
     }
     get isEnabled() {
         //battery_charge_percentage!=0, battery_state!=0, window.battery_lock_block[0].style.display=='none'
-        return window.battery_lock_block[0].style.display=='none';
+        return window.battery_state!=0;
     }
     update(){
-        if(this.data.indicatorCurrent==this.data.indicatorLimit)this.btns.limit.click();
+        if(!page.engineer.isEnabled && this.data.indicatorCurrent==this.data.indicatorLimit)
+        {this.btns.limit.click();}
     }
 }
 class System {
     constructor(){
         this.moneyLimitBtn = window.money_limit_upgrade[0];
         this.upgradeBoxes = [...window.bonusbox];
+        window.warp_panel3_upgrade_flag
     }
     get money() {return window.money}
     get moneyLimit() {return window.money_limit}
+    get autoResearch() {return window.warp_panel3_upgrade_flag!=0}
     update(){
-        //this.money = window.money;
-        //this.moneyLimit = window.money;
-        if(this.money == this.moneyLimit) this.moneyLimitBtn.click();
-        if(!this.upgradeBoxes[0].disabled) this.upgradeBoxes[0].click();
+        if(!page.engineer.isEnabled && this.money == this.moneyLimit) this.moneyLimitBtn.click();
+        if(!this.autoResearch && !this.upgradeBoxes[0].disabled) this.upgradeBoxes[0].click();
     }
 }
 class Generator {
