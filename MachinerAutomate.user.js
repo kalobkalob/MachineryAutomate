@@ -1,19 +1,17 @@
 // ==UserScript==
 // @name         Machinery automate
 // @namespace    http://tampermonkey.net/
-// @version      1.0.5
+// @version      1.0.6
 // @description  Script for automating the Machinery idle game.
 // @author       kaws#9779
 // @match        https://louigiverona.com/machinery/*
 // @icon         https://louigiverona.com/favicon.ico
 // @grant        none
-// @downloadURL  https://github.com/kalobkalob/MachineryAutomate/raw/main/MachinerAutomate.user.js
+// @downloadURL  https://github.com/kalobkalob/MachineryAutomate/blob/main/MachinerAutomate.user.js
 // ==/UserScript==
 
 /* TODO
 * BUGS:
-* magnetron issue before unlock. Can break save. Check for others.
-* Condensed update system to single loop through modifiable array.
 
 * Possible upgrades: Use predictive method for increasing methods.
 */
